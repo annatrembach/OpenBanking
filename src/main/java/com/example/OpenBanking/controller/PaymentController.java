@@ -22,42 +22,6 @@ public class PaymentController {
 
     private final PaymentService paymentService;
     private final PaymentMapper paymentMapper;
-    private final AccountService accountService;
-
-    @PostMapping
-    public ResponseEntity<PaymentResponseDTO> create(@RequestBody PaymentRequestDTO dto) {
-        Payment payment = paymentMapper.toModel(dto);
-        Payment saved = paymentService.create(payment);
-        return ResponseEntity.ok(paymentMapper.toResponseDTO(saved));
-    }
-
-    @GetMapping
-    public List<PaymentResponseDTO> getAll() {
-        return paymentService.findAll().stream()
-                .map(paymentMapper::toResponseDTO)
-                .collect(Collectors.toList());
-    }
-
-    @GetMapping("/{id}")
-    public ResponseEntity<PaymentResponseDTO> getById(@PathVariable Long id) {
-        return paymentService.findById(id)
-                .map(paymentMapper::toResponseDTO)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
-    }
-
-    @PutMapping("/{id}")
-    public ResponseEntity<PaymentResponseDTO> update(@PathVariable Long id, @RequestBody PaymentRequestDTO dto) {
-        Payment updatedPayment = paymentMapper.toModel(dto);
-        Payment saved = paymentService.update(id, updatedPayment);
-        return ResponseEntity.ok(paymentMapper.toResponseDTO(saved));
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
-        paymentService.delete(id);
-        return ResponseEntity.noContent().build();
-    }
 
     @PostMapping("/initiate")
     public ResponseEntity<PaymentResponseDTO> initiatePayment(@RequestBody PaymentRequestDTO request) {
@@ -67,13 +31,4 @@ public class PaymentController {
         return ResponseEntity.ok(responseDTO);
     }
 
-    @GetMapping("/{accountId}/external-balance")
-    public ResponseEntity<BigDecimal> getExternalBalance(@PathVariable Long accountId) {
-        try {
-            BigDecimal balance = accountService.fetchExternalBalance(accountId);
-            return ResponseEntity.ok(balance);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).build();
-        }
-    }
 }

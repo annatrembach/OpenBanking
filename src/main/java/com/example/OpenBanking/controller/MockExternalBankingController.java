@@ -1,6 +1,8 @@
 package com.example.OpenBanking.controller;
 
+import com.example.OpenBanking.dto.AccountDTO;
 import com.example.OpenBanking.dto.TransactionDTO;
+import com.example.OpenBanking.model.Payment;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,27 +14,24 @@ import java.util.List;
 @RequestMapping("/mock-external-api")
 public class MockExternalBankingController {
 
-    @GetMapping("/accounts/{accountId}/balance")
-    public ResponseEntity<BigDecimal> getBalance(@PathVariable String accountId) {
-        BigDecimal mockBalance = new BigDecimal("1500.75");
-        System.out.println("Get balance for accountId: " + accountId);
-        return ResponseEntity.ok(mockBalance);
-    }
-
     @GetMapping("/accounts/{accountId}/transactions")
-    public ResponseEntity<List<TransactionDTO>> getTransactions(@PathVariable String accountId) {
+    public ResponseEntity<List<TransactionDTO>> getMockTransactions(@PathVariable Long accountId) {
+        String mockIban = "MOCKIBAN" + String.format("%010d", accountId);
+
+        AccountDTO account = new AccountDTO();
+        account.setIban(mockIban);
         List<TransactionDTO> transactions = List.of(
-                new TransactionDTO(accountId, new BigDecimal("100.00"), "USD", "Mock payment 1", LocalDateTime.now().minusDays(1)),
-                new TransactionDTO(accountId, new BigDecimal("200.50"), "USD", "Mock payment 2", LocalDateTime.now().minusDays(2)),
-                new TransactionDTO(accountId, new BigDecimal("50.75"), "USD", "Mock payment 3", LocalDateTime.now().minusDays(3))
+            new TransactionDTO(account, new BigDecimal("100.00"), "USD", "Mock payment 1", LocalDateTime.now().minusDays(1)),
+            new TransactionDTO(account, new BigDecimal("200.00"), "USD", "Mock payment 2", LocalDateTime.now().minusDays(2)),
+            new TransactionDTO(account, new BigDecimal("300.00"), "USD", "Mock payment 3", LocalDateTime.now().minusDays(3))
         );
-        System.out.println("Get transactions for accountId: " + accountId);
+
         return ResponseEntity.ok(transactions);
     }
 
-    @PostMapping("/payments/initiate")
-    public ResponseEntity<Void> initiatePayment(@RequestBody com.example.OpenBanking.model.Payment payment) {
-        System.out.println("Received payment: " + payment);
-        return ResponseEntity.ok().build();
+    @GetMapping("/accounts/{accountId}/balance")
+    public ResponseEntity<BigDecimal> getMockBalance(@PathVariable Long accountId) {
+        return ResponseEntity.ok(new BigDecimal("10000.00"));
     }
+    
 }

@@ -3,8 +3,11 @@ package com.example.OpenBanking.controller;
 import com.example.OpenBanking.dto.AccountDTO;
 import com.example.OpenBanking.mapper.AccountMapper;
 import com.example.OpenBanking.model.Account;
+import com.example.OpenBanking.model.User;
 import com.example.OpenBanking.service.AccountService;
+import com.example.OpenBanking.service.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,12 +22,30 @@ public class AccountController {
 
     private final AccountService accountService;
     private final AccountMapper accountMapper;
+    private final UserService userService;
 
-    @GetMapping
-    public List<AccountDTO> getAllAccounts() {
-        return accountService.findAll().stream()
-                .map(accountMapper::toDTO)
-                .collect(Collectors.toList());
+    @GetMapping("/")
+    public List<AccountDTO> getAllAccountsForCurrentUser() {
+        User currentUser = userService.getCurrentUser();
+        return accountService.findByUser(currentUser).stream()
+            .map(accountMapper::toDTO)
+            .collect(Collectors.toList());
+    }
+
+    @PostMapping("/create")
+    public ResponseEntity<AccountDTO> createAccountForCurrentUser() {
+        User currentUser = userService.getCurrentUser();
+
+        Long lastId = accountService.getLastAccountId();
+        String newIban = accountService.generateIban(lastId + 1);
+
+        Account account = new Account();
+        account.setUser(currentUser);
+        account.setIban(newIban);
+        account.setBalance(BigDecimal.ZERO);
+
+        Account saved = accountService.save(account);
+        return ResponseEntity.ok(accountMapper.toDTO(saved));
     }
 
     @GetMapping("/{id}")
@@ -43,13 +64,6 @@ public class AccountController {
                 .orElse(ResponseEntity.notFound().build());
     }
 
-    @PostMapping
-    public ResponseEntity<AccountDTO> createAccount(@RequestBody AccountDTO dto) {
-        Account account = accountMapper.toModel(dto);
-        Account saved = accountService.save(account);
-        return ResponseEntity.ok(accountMapper.toDTO(saved));
-    }
-
     @PutMapping("/{id}")
     public ResponseEntity<AccountDTO> updateAccount(@PathVariable Long id, @RequestBody AccountDTO dto) {
         Account account = accountMapper.toModel(dto);
@@ -62,4 +76,5 @@ public class AccountController {
         accountService.deleteById(id);
         return ResponseEntity.noContent().build();
     }
+
 }

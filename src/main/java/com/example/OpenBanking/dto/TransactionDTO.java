@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class TransactionDTO {
-    private String accountIban;
+    private AccountDTO account;
     private BigDecimal amount;
     private String currency;
     private String description;

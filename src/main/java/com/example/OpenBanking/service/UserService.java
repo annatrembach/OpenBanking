@@ -30,11 +30,6 @@ public class UserService implements UserDetailsService {
                 .build();
     }
 
-    public User getUserProfile(String jwt) {
-        String email = JwtProvider.getEmailFromJwtToken(jwt);
-        return userRepository.findByEmail(email);
-    }
-
     public AuthResponseDTO registerUser(User user, PasswordEncoder passwordEncoder) throws Exception {
         if (userRepository.findByEmail(user.getEmail()) != null) {
             throw new Exception("Email already exists");
@@ -49,5 +44,16 @@ public class UserService implements UserDetailsService {
 
         return new AuthResponseDTO(token, "Register success", true);
     }
+
+    public User getCurrentUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email = authentication.getName();
+        User user = userRepository.findByEmail(email);
+        if (user == null) {
+            throw new UsernameNotFoundException("User not found with email: " + email);
+        }
+        return user;
+    }
+
 
 }

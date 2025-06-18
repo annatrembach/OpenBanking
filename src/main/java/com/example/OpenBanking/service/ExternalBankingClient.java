@@ -20,13 +20,13 @@ public class ExternalBankingClient {
     private final RestTemplate restTemplate;
     private final String baseUrl = "http://localhost:8080/mock-external-api";
 
-    public BigDecimal getBalance(String iban) {
-        String url = baseUrl + "/accounts/" + iban + "/balance";
+    public BigDecimal getBalance(Long accountId) {
+        String url = baseUrl + "/accounts/" + accountId + "/balance";
         return restTemplate.getForObject(url, BigDecimal.class);
     }
 
-    public List<TransactionDTO> getTransactions(String iban) {
-        String url = baseUrl + "/accounts/" + iban + "/transactions";
+    public List<TransactionDTO> getTransactions(Long accountId) {
+        String url = baseUrl + "/accounts/" + accountId + "/transactions";
         ResponseEntity<TransactionDTO[]> response = restTemplate.getForEntity(url, TransactionDTO[].class);
         return List.of(response.getBody());
     }

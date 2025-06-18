@@ -15,12 +15,8 @@ public interface PaymentMapper {
     @Mapping(target = "createdAt", ignore = true)
     Payment toModel(PaymentRequestDTO dto);
 
-    @Mapping(source = "status", target = "status", qualifiedByName = "paymentStatusToString")
     PaymentResponseDTO toResponseDTO(Payment payment);
 
-    @Named("paymentStatusToString")
-    default String paymentStatusToString(PaymentStatus status) {
-        return status != null ? status.name() : null;
-    }
 }
+
 

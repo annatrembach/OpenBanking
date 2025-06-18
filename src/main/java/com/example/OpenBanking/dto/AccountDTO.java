@@ -11,10 +11,9 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 public class AccountDTO {
     private Long id;
-    private String firstName;
-    private String lastName;
-    private String email;
+    private UserDTO user;
     private String iban;
     private BigDecimal balance;
+
 
 }
